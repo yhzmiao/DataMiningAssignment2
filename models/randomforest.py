@@ -2,8 +2,8 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 
-train_data = pd.read_csv("output_train.csv")
-test_data = pd.read_csv("output_test.csv")
+train_data = pd.read_csv("output_train_smote.csv")
+test_data = pd.read_csv("output_test_ori.csv")
 
 features = [
     'booking_bool',
@@ -13,13 +13,25 @@ features = [
     #'visitor_location_country_id'
     'prop_starrating',
     'prop_brand_bool',
-    'location_score1',
-    'log_historical_price',
-    'price_group',
+    
+    'prop_location_score1',
+    #'location_score1',
+    
+    'prop_log_historical_price',
+    #'log_historical_price',
+    
+    'price_usd',
+    #'price_group',
+    
     'promotion_flag',
     #'srch_destination_id',
-    'length_of_stay',
-    'booking_window',
+    
+    'srch_length_of_stay',
+    #'length_of_stay',
+    
+    'srch_booking_window',
+    #'booking_window',
+
     'srch_adults_count',
     'srch_children_count',
     'srch_room_count',
@@ -28,12 +40,22 @@ features = [
     'foreigner',
     'preferred',
     'strong_competitor',
-    'query_aff',
-    'distance',
-    'location_score2',
+    
+    'srch_query_affinity_score',
+    #'query_aff',
+    
+    'orig_destination_distance',
+    #'distance',
+    
+    'prop_location_score2',
+    #'location_score2',
+    
     'prop_review_score',
-    'family_type'
+    'family_type',
+    'cost_effective'
 ]
+
+
 
 train_data = train_data[features]
 #train_data.info()
@@ -46,18 +68,22 @@ print("Finished data preprocessing!")
 #X = pd.get_dummies(train_data[features[1:]], columns = features[1:])
 X = train_data[features[1:]]
 y = train_data['booking_bool']
+#X_test = pd.get_dummies(test_data, columns = features[1:])
+#print(X.keys())
+#print(X_test.keys())
+#quit()
 
 #add cross validate,
 from sklearn.model_selection import KFold
 
 # 3-fold
-cv = KFold(n_splits = 3, random_state = 1, shuffle = True)
+cv = KFold(n_splits = 5, random_state = 42, shuffle = True)
 
 max_score = 0
 max_n_tree = 0
 max_m_depth = 0
 
-#for n_tree in range(36, 121, 12):
+#for n_tree in range(30, 73, 6):
 #    local_max_score = 0
 #    local_max_m_depth = 0
 #    for m_depth in range(15, 26, 5):
@@ -81,15 +107,15 @@ max_m_depth = 0
 
 #print(max_n_tree, max_m_depth)
 
-max_n_tree = 55
-max_m_depth = 15
+max_n_tree = 72
+max_m_depth = 25
 
 model = RandomForestClassifier(n_estimators = max_n_tree, max_depth = max_m_depth, n_jobs = -1, verbose = 2)
 model.fit(X, y)
 
 print("Finished training!")
 
-# X_test = pd.get_dummies(test_data, columns = features[1:])
+#X_test = pd.get_dummies(test_data, columns = features[1:])
 X_test = test_data[features[1:]]
 predictions = model.predict_proba(X_test)
 
